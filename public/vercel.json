@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "functions": {
+    "api/fortune-edge.js": {
+      "runtime": "edge",
+      "memory": 256
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)\\.jpg",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=100, s-maxage=300, stale-while-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.mp4",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=300, stale-while-revalidate"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "project-rplay",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.99.1",
+    "redis": "^5.11.0"
+  }
+}
