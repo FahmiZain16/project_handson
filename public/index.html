@@ -651,9 +651,7 @@
         card.dataset.id = item.id;
 
         const tipe = (item.tipe || "foto").toLowerCase();
-        const thumbSrc = item.thumbnail_url
-          ? `/koleksi/${esc(item.thumbnail_url.split("/").pop())}`
-          : null;
+        const thumbSrc = item.thumbnail_url || null;
 
         card.innerHTML = `
         <div class="card-thumb">
@@ -725,12 +723,8 @@
         const tipe = (d.tipe || "foto").toLowerCase();
 
         // Tentukan src media
-        const thumbSrc = d.thumbnail_url
-          ? `/koleksi/${esc(d.thumbnail_url.split("/").pop())}`
-          : null;
-        const mediaSrc = d.media_url
-          ? `/koleksi/${esc(d.media_url.split("/").pop())}`
-          : null;
+        const thumbSrc = d.thumbnail_url || null;
+        const mediaSrc = d.media_url || null;
 
         // Media preview — video putar di tempat, foto tampilkan thumbnail
         let mediaHtml = "";
