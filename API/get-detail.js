@@ -80,9 +80,7 @@ export default async function handler(req, res) {
       const supabase = getSupabase();
       const { data, error } = await supabase
         .from("koleksi")
-        .select(
-          "id, judul, tipe, thumbnail_url, media_url, pencipta, tahun, harga, deskripsi",
-        )
+        .select("id, judul, tipe, path, pencipta, tahun, harga, deskripsi")
         .eq("id", id)
         .single();
 

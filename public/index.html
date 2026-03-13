@@ -651,7 +651,7 @@
         card.dataset.id = item.id;
 
         const tipe = (item.tipe || "foto").toLowerCase();
-        const thumbSrc = item.thumbnail_url || null;
+        const thumbSrc = item.path || null;
 
         card.innerHTML = `
         <div class="card-thumb">
@@ -723,8 +723,8 @@
         const tipe = (d.tipe || "foto").toLowerCase();
 
         // Tentukan src media
-        const thumbSrc = d.thumbnail_url || null;
-        const mediaSrc = d.media_url || null;
+        const thumbSrc = d.path || null;
+        const mediaSrc = d.path || null;
 
         // Media preview — video putar di tempat, foto tampilkan thumbnail
         let mediaHtml = "";

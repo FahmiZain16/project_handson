@@ -68,7 +68,7 @@ export default async function handler(req, res) {
       const supabase = getSupabase();
       const { data, error } = await supabase
         .from("koleksi")
-        .select("id, judul, thumbnail_url, tipe")
+        .select("id, judul, path, tipe")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
