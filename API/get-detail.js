@@ -1,118 +1,59 @@
 // api/get-detail.js
-// Serverless function — GET /api/get-detail?id=<uuid>
-// Mengembalikan detail lengkap satu koleksi
-// Data Supabase di-cache di Redis selama 10 menit per ID
+// Mengambil detail 1 koleksi berdasarkan ?id=, dengan cache per-item di Redis
 
 import { createClient } from "@supabase/supabase-js";
-import { createClient as createRedisClient } from "redis";
+import { createClient as createRedis } from "redis";
 
-// ── Konstanta ──────────────────────────────────────
-const CACHE_TTL = 600; // 10 menit
+const CACHE_TTL = 120; // detik (2 menit)
 
-// ── Singleton clients ──────────────────────────────
-let _supabase = null;
-let _redis = null;
-
-function getSupabase() {
-  if (!_supabase) {
-    const url = process.env.SUPABASE_URL;
-    const key = process.env.SUPABASE_ANON_KEY;
-    if (!url || !key)
-      throw new Error("SUPABASE_URL / SUPABASE_ANON_KEY belum diset");
-    _supabase = createClient(url, key);
-  }
-  return _supabase;
-}
-
-async function getRedis() {
-  if (!_redis) {
-    const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
-    _redis = createRedisClient({ url: redisUrl });
-    _redis.on("error", (e) => console.warn("[Redis] error:", e.message));
-    await _redis.connect();
-  }
-  return _redis;
-}
-
-// ── Handler ────────────────────────────────────────
 export default async function handler(req, res) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
+  res.setHeader("Access-Control-Allow-Origin", "*");
 
-  // Backend tidak di-cache
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-  res.setHeader("Pragma", "no-cache");
-
-  // Validasi query param ?id=
   const { id } = req.query;
   if (!id) {
-    return res
-      .status(400)
-      .json({ success: false, error: "Parameter 'id' diperlukan" });
-  }
-  // Sanitasi: hanya alfanumerik + dash (UUID safe)
-  if (!/^[\w-]{1,100}$/.test(id)) {
-    return res
-      .status(400)
-      .json({ success: false, error: "Format id tidak valid" });
+    return res.status(400).json({ error: "Parameter id wajib diisi" });
   }
 
-  const CACHE_KEY = `detail:${id}`;
+  const CACHE_KEY = `koleksi:detail:${id}`;
+  let redis;
 
-  // 1. Cek Redis
-  let detail = null;
-  let cacheHit = false;
   try {
-    const redis = await getRedis();
-    const raw = await redis.get(CACHE_KEY);
-    if (raw) {
-      detail = JSON.parse(raw);
-      cacheHit = true;
+    // ── 1. Coba cache Redis ───────────────────────────────────
+    redis = createRedis({ url: process.env.REDIS_URL });
+    await redis.connect();
+
+    const cached = await redis.get(CACHE_KEY);
+    if (cached) {
+      console.log(`[get-detail] Cache HIT untuk id=${id}`);
+      await redis.disconnect();
+      return res.status(200).json(JSON.parse(cached));
     }
-  } catch (e) {
-    console.warn("[get-detail] Redis get gagal:", e.message);
+
+    // ── 2. Cache MISS — query Supabase ────────────────────────
+    console.log(`[get-detail] Cache MISS — query Supabase id=${id}`);
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_ANON_KEY,
+    );
+
+    const { data, error } = await supabase
+      .from("koleksi")
+      .select("id, judul, pencipta, tahun, harga, path")
+      .eq("id", id)
+      .single();
+
+    if (error) throw error;
+    if (!data)
+      return res.status(404).json({ error: "Koleksi tidak ditemukan" });
+
+    // ── 3. Simpan ke Redis ────────────────────────────────────
+    await redis.setEx(CACHE_KEY, CACHE_TTL, JSON.stringify(data));
+    await redis.disconnect();
+
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error("[get-detail] Error:", err.message);
+    if (redis?.isOpen) await redis.disconnect();
+    return res.status(500).json({ error: err.message });
   }
-
-  // 2. Miss → ambil dari Supabase
-  if (!detail) {
-    try {
-      const supabase = getSupabase();
-      const { data, error } = await supabase
-        .from("koleksi")
-        .select("id, judul, tipe, path, pencipta, tahun, harga, deskripsi")
-        .eq("id", id)
-        .single();
-
-      if (error) {
-        if (error.code === "PGRST116") {
-          // Row not found
-          return res
-            .status(404)
-            .json({ success: false, error: "Koleksi tidak ditemukan" });
-        }
-        throw error;
-      }
-      detail = data;
-
-      // 3. Simpan ke Redis
-      try {
-        const redis = await getRedis();
-        await redis.setEx(CACHE_KEY, CACHE_TTL, JSON.stringify(detail));
-      } catch (e) {
-        console.warn("[get-detail] Redis set gagal:", e.message);
-      }
-    } catch (e) {
-      console.error("[get-detail] Supabase error:", e.message);
-      return res
-        .status(500)
-        .json({ success: false, error: "Gagal mengambil detail koleksi" });
-    }
-  }
-
-  return res.status(200).json({
-    success: true,
-    cache: cacheHit ? "HIT" : "MISS",
-    data: detail,
-  });
 }

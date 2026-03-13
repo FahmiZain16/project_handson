@@ -1,10 +1,14 @@
 {
   "version": 2,
-  "outputDirectory": "public",
-
+  "functions": {
+    "api/fortune-edge.js": {
+      "runtime": "edge",
+      "memory": 256
+    }
+  },
   "headers": [
     {
-      "source": "/koleksi/(.*)\\.jpg",
+      "source": "/(.*)\\.jpg",
       "headers": [
         {
           "key": "Cache-Control",
@@ -13,16 +17,7 @@
       ]
     },
     {
-      "source": "/koleksi/(.*)\\.png",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=100, s-maxage=300, stale-while-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/koleksi/(.*)\\.mp4",
+      "source": "/(.*)\\.mp4",
       "headers": [
         {
           "key": "Cache-Control",
@@ -40,7 +35,7 @@
       ]
     },
     {
-      "source": "/index.html",
+      "source": "/(.*)\\.html",
       "headers": [
         {
           "key": "Cache-Control",

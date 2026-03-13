@@ -3,825 +3,314 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arsip Seni — Koleksi Foto & Video</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-
+    <title>Katalog Koleksi Seni</title>
     <style>
-      /* ════════════════════════════════════════════════
-       TOKENS
-    ════════════════════════════════════════════════ */
-      :root {
-        --ink: #0d0d0f;
-        --paper: #f5f2eb;
-        --warm: #e8e2d5;
-        --rule: #d4cdc0;
-        --muted: #9a9287;
-        --deep: #3d3830;
-        --gold: #b8962e;
-        --gold-lt: #d4b44a;
-        --red: #9b3a2a;
-        --radius: 0px; /* hard edges — print aesthetic */
-      }
-
-      /* ════════════════════════════════════════════════
-       RESET
-    ════════════════════════════════════════════════ */
-      *,
-      *::before,
-      *::after {
+      * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
-      html {
-        scroll-behavior: smooth;
-      }
-
       body {
-        background: var(--paper);
-        color: var(--ink);
-        font-family: "Syne", sans-serif;
-        font-weight: 400;
+        font-family: "Segoe UI", sans-serif;
+        background: #f5f5f5;
+        color: #333;
         min-height: 100vh;
         display: flex;
         flex-direction: column;
-        /* subtle grain texture */
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
       }
-
-      /* ════════════════════════════════════════════════
-       MASTHEAD
-    ════════════════════════════════════════════════ */
-      .masthead {
-        border-bottom: 3px double var(--rule);
-        padding: 0;
+      header {
+        background: #1a1a2e;
+        color: white;
+        padding: 20px 40px;
       }
-      .masthead-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.55rem 2.5rem;
-        border-bottom: 1px solid var(--rule);
+      header h1 {
+        font-size: 1.8rem;
       }
-      .masthead-date {
-        font-size: 0.62rem;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--muted);
+      header p {
+        font-size: 0.9rem;
+        color: #aaa;
+        margin-top: 4px;
       }
-      .masthead-tag {
-        font-size: 0.62rem;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--gold);
-      }
-
-      .masthead-center {
-        text-align: center;
-        padding: 1.8rem 2.5rem 1.5rem;
-      }
-      .masthead-kicker {
-        font-family: "Syne", sans-serif;
-        font-size: 0.6rem;
-        letter-spacing: 0.35em;
-        text-transform: uppercase;
-        color: var(--muted);
-        margin-bottom: 0.4rem;
-      }
-      .masthead-title {
-        font-family: "Cormorant Garamond", serif;
-        font-weight: 300;
-        font-size: clamp(3rem, 8vw, 5.5rem);
-        line-height: 0.92;
-        letter-spacing: -0.01em;
-        color: var(--ink);
-      }
-      .masthead-title em {
-        font-style: italic;
-        color: var(--deep);
-      }
-      .masthead-rule {
-        width: 3rem;
-        height: 1px;
-        background: var(--gold);
-        margin: 1rem auto 0.6rem;
-      }
-      .masthead-sub {
-        font-size: 0.72rem;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--muted);
-      }
-
-      /* ════════════════════════════════════════════════
-       MAIN LAYOUT
-    ════════════════════════════════════════════════ */
       main {
         flex: 1;
-        max-width: 1360px;
+        padding: 30px 40px;
+        max-width: 1200px;
         margin: 0 auto;
         width: 100%;
-        padding: 2.5rem 2.5rem 0;
+      }
+      h2 {
+        margin-bottom: 20px;
+        font-size: 1.3rem;
+        color: #444;
       }
 
-      /* ════════════════════════════════════════════════
-       DETAIL PANEL (di atas grid, di bawah header main)
-    ════════════════════════════════════════════════ */
-      #detail-panel {
-        display: none;
-        border: 1px solid var(--rule);
-        border-left: 4px solid var(--gold);
+      /* Katalog Grid */
+      #katalog {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+      }
+      .card {
         background: white;
-        margin-bottom: 2.5rem;
-        animation: fadeSlide 0.22s ease;
-      }
-      #detail-panel.open {
-        display: block;
-      }
-
-      @keyframes fadeSlide {
-        from {
-          opacity: 0;
-          transform: translateY(-6px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .detail-grid {
-        display: grid;
-        grid-template-columns: 340px 1fr;
-        min-height: 260px;
-      }
-      @media (max-width: 700px) {
-        .detail-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      .detail-media {
-        background: var(--ink);
+        border-radius: 10px;
         overflow: hidden;
-        position: relative;
-      }
-      .detail-media img,
-      .detail-media video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        opacity: 0;
-        transition: opacity 0.4s;
-      }
-      .detail-media img.loaded,
-      .detail-media video {
-        opacity: 1;
-      }
-
-      .detail-body {
-        padding: 2rem 2.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        position: relative;
-      }
-
-      .detail-close {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background: none;
-        border: 1px solid var(--rule);
-        width: 2rem;
-        height: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         cursor: pointer;
-        font-size: 0.85rem;
-        color: var(--muted);
-        display: flex;
-        align-items: center;
-        justify-content: center;
         transition:
-          border-color 0.15s,
-          color 0.15s;
-        font-family: inherit;
+          transform 0.2s,
+          box-shadow 0.2s;
       }
-      .detail-close:hover {
-        border-color: var(--gold);
-        color: var(--gold);
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
       }
-
-      .detail-eyebrow {
-        font-size: 0.58rem;
-        letter-spacing: 0.3em;
-        text-transform: uppercase;
-        color: var(--gold);
-        margin-bottom: 0.5rem;
+      .card img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        background: #ddd;
       }
-      .detail-title {
-        font-family: "Cormorant Garamond", serif;
-        font-weight: 400;
-        font-size: clamp(1.6rem, 3vw, 2.4rem);
-        line-height: 1.1;
-        color: var(--ink);
-        margin-bottom: 1.5rem;
-        padding-right: 2.5rem;
-      }
-
-      .detail-fields {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0;
-        border-top: 1px solid var(--rule);
-        margin-bottom: 1.25rem;
-      }
-      .detail-field {
-        padding: 0.75rem 0;
-        border-bottom: 1px solid var(--warm);
-      }
-      .detail-field:nth-child(odd) {
-        padding-right: 1.5rem;
-        border-right: 1px solid var(--warm);
-      }
-      .detail-field:nth-child(even) {
-        padding-left: 1.5rem;
-      }
-
-      .field-label {
-        font-size: 0.55rem;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: var(--muted);
-        margin-bottom: 0.2rem;
-      }
-      .field-value {
-        font-family: "Cormorant Garamond", serif;
-        font-size: 1.05rem;
-        color: var(--deep);
-      }
-      .field-value.harga {
-        font-size: 1.2rem;
-        color: var(--gold);
+      .card .card-title {
+        padding: 10px 12px;
+        font-size: 0.9rem;
         font-weight: 600;
       }
 
-      .detail-desc {
-        font-family: "Cormorant Garamond", serif;
-        font-size: 1rem;
-        line-height: 1.75;
-        color: var(--muted);
-        font-style: italic;
-        border-top: 1px solid var(--rule);
-        padding-top: 1rem;
-        margin-top: auto;
+      /* Detail Panel */
+      #detail-panel {
+        display: none;
+        background: white;
+        border-radius: 10px;
+        padding: 24px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid #4f8ef7;
       }
-
-      /* ════════════════════════════════════════════════
-       SECTION RULE
-    ════════════════════════════════════════════════ */
-      .section-rule {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+      #detail-panel.active {
+        display: block;
       }
-      .section-rule span {
-        font-size: 0.58rem;
-        letter-spacing: 0.28em;
-        text-transform: uppercase;
-        color: var(--muted);
-        white-space: nowrap;
+      #detail-panel h3 {
+        font-size: 1.2rem;
+        margin-bottom: 14px;
+        color: #1a1a2e;
       }
-      .section-rule::before,
-      .section-rule::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: var(--rule);
-      }
-
-      /* ════════════════════════════════════════════════
-       CATALOG GRID
-    ════════════════════════════════════════════════ */
-      #catalog {
+      .detail-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-        gap: 1px;
-        background: var(--rule);
-        border: 1px solid var(--rule);
-        margin-bottom: 3rem;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
       }
-
-      /* ── Card ─────────────────────────────────────── */
-      .card {
-        background: var(--paper);
-        cursor: pointer;
-        transition: background 0.15s;
-        outline: none;
-      }
-      .card:hover {
-        background: white;
-      }
-      .card:focus-visible {
-        outline: 2px solid var(--gold);
-        outline-offset: -2px;
-      }
-      .card.aktif {
-        background: white;
-        outline: 2px solid var(--gold);
-        outline-offset: -2px;
-      }
-
-      .card-thumb {
-        aspect-ratio: 4 / 3;
-        overflow: hidden;
-        background: var(--warm);
-        position: relative;
-      }
-      .card-thumb img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        opacity: 0;
-        transition:
-          opacity 0.35s,
-          transform 0.45s ease;
-      }
-      .card-thumb img.loaded {
-        opacity: 1;
-      }
-      .card:hover .card-thumb img {
-        transform: scale(1.05);
-      }
-
-      .card-tipe {
-        position: absolute;
-        bottom: 0.5rem;
-        left: 0.5rem;
-        font-size: 0.52rem;
-        letter-spacing: 0.15em;
+      .detail-item label {
+        font-size: 0.75rem;
+        color: #888;
         text-transform: uppercase;
-        padding: 0.18rem 0.45rem;
-        font-weight: 700;
+        letter-spacing: 0.5px;
       }
-      .card-tipe.foto {
-        background: var(--gold);
-        color: white;
-      }
-      .card-tipe.video {
-        background: var(--deep);
-        color: var(--gold-lt);
-      }
-
-      .card-foot {
-        padding: 0.7rem 0.9rem 0.8rem;
-        border-top: 1px solid var(--warm);
-      }
-      .card-judul {
-        font-family: "Cormorant Garamond", serif;
-        font-size: 0.95rem;
-        line-height: 1.35;
-        color: var(--ink);
-      }
-
-      /* ── Placeholder / empty thumb ─────────────────── */
-      .thumb-empty {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        color: var(--rule);
-        background: var(--warm);
-      }
-
-      /* ── Skeleton ──────────────────────────────────── */
-      .skel {
-        background: var(--paper);
-      }
-      .skel-img {
-        aspect-ratio: 4/3;
-        background: linear-gradient(
-          90deg,
-          var(--warm) 25%,
-          var(--paper) 50%,
-          var(--warm) 75%
-        );
-        background-size: 200% 100%;
-        animation: shimmer 1.3s infinite;
-      }
-      .skel-txt {
-        height: 1.8rem;
-        margin: 0.75rem 0.9rem;
-        background: linear-gradient(
-          90deg,
-          var(--warm) 25%,
-          var(--paper) 50%,
-          var(--warm) 75%
-        );
-        background-size: 200% 100%;
-        animation: shimmer 1.3s infinite;
-      }
-      @keyframes shimmer {
-        from {
-          background-position: 200% 0;
-        }
-        to {
-          background-position: -200% 0;
-        }
-      }
-
-      /* ── State: kosong / error ──────────────────────── */
-      .state-msg {
-        grid-column: 1 / -1;
-        padding: 4rem 1.5rem;
-        text-align: center;
-        background: var(--paper);
-        color: var(--muted);
-      }
-      .state-msg .icon {
-        font-size: 2rem;
-        display: block;
-        margin-bottom: 0.5rem;
-      }
-      .state-msg p {
-        font-family: "Cormorant Garamond", serif;
-        font-style: italic;
+      .detail-item p {
         font-size: 1rem;
+        font-weight: 600;
+        margin-top: 2px;
+      }
+      #detail-image {
+        width: 100%;
+        max-height: 300px;
+        object-fit: contain;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        background: #f0f0f0;
+      }
+      #close-detail {
+        margin-top: 12px;
+        background: none;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 6px 14px;
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+      #close-detail:hover {
+        background: #f0f0f0;
       }
 
-      /* ── Detail loading spinner ─────────────────────── */
-      .detail-spin {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 1.75rem 2rem;
-        color: var(--muted);
-        font-size: 0.78rem;
-        letter-spacing: 0.08em;
-      }
-      .spinner {
-        width: 16px;
-        height: 16px;
-        border: 1.5px solid var(--warm);
-        border-top-color: var(--gold);
-        border-radius: 50%;
-        animation: spin 0.55s linear infinite;
-        flex-shrink: 0;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      /* ════════════════════════════════════════════════
-       FOOTER
-    ════════════════════════════════════════════════ */
-      footer {
-        border-top: 3px double var(--rule);
-        padding: 2rem 2.5rem;
+      /* Loading & error */
+      #loading {
         text-align: center;
-        background: var(--paper);
+        padding: 40px;
+        color: #888;
       }
-      .fortune-label {
-        font-size: 0.55rem;
-        letter-spacing: 0.3em;
-        text-transform: uppercase;
-        color: var(--rule);
-        margin-bottom: 0.65rem;
-      }
-      .fortune-text {
-        font-family: "Cormorant Garamond", serif;
-        font-size: clamp(1rem, 2.5vw, 1.25rem);
-        font-style: italic;
-        font-weight: 300;
-        color: var(--deep);
-        max-width: 620px;
-        margin: 0 auto;
-        line-height: 1.6;
-      }
-      .fortune-text::before {
-        content: "\2018\2018";
-        color: var(--gold);
-        margin-right: 0.15em;
-        font-style: normal;
-      }
-      .fortune-text::after {
-        content: "\2019\2019";
-        color: var(--gold);
-        margin-left: 0.15em;
-        font-style: normal;
+      #error-msg {
+        color: red;
+        padding: 20px;
       }
 
-      .footer-byline {
-        margin-top: 1.25rem;
-        font-size: 0.58rem;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: var(--rule);
+      /* Footer fortune */
+      footer {
+        background: #1a1a2e;
+        color: #ccc;
+        padding: 20px 40px;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .fortune-box {
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 8px;
+        padding: 10px 16px;
+      }
+      .fortune-box .label {
+        font-size: 0.72rem;
+        color: #888;
+        margin-bottom: 4px;
+      }
+      .fortune-box .text {
+        font-style: italic;
+      }
+      .fortune-source {
+        font-size: 0.7rem;
+        color: #666;
+        margin-top: 3px;
       }
     </style>
   </head>
   <body>
-    <!-- ═══════════════════════════════ MASTHEAD ══ -->
-    <header class="masthead">
-      <div class="masthead-top">
-        <span class="masthead-date" id="tgl-hari-ini"></span>
-        <span class="masthead-tag">Koleksi Digital</span>
-      </div>
-      <div class="masthead-center">
-        <p class="masthead-kicker">Arsip Karya Pilihan</p>
-        <h1 class="masthead-title">Galeri&nbsp;<em>Seni</em></h1>
-        <div class="masthead-rule"></div>
-        <p class="masthead-sub">Foto &amp; Video &middot; Kurator Independen</p>
-      </div>
+    <header>
+      <h1>🎨 Katalog Koleksi Seni</h1>
+      <p>Foto &amp; video pilihan dari berbagai seniman</p>
     </header>
 
-    <!-- ═══════════════════════════════ MAIN ══════ -->
     <main>
-      <!-- Detail panel — muncul di atas katalog saat item diklik -->
-      <div
-        id="detail-panel"
-        role="region"
-        aria-label="Detail koleksi"
-        aria-live="polite"
-      ></div>
-
-      <div class="section-rule"><span>Semua Koleksi</span></div>
-
-      <!-- Catalog grid -->
-      <div id="catalog" role="list" aria-label="Katalog koleksi seni">
-        <!-- Skeleton awal -->
-        <div class="skel">
-          <div class="skel-img"></div>
-          <div class="skel-txt"></div>
+      <!-- Detail Panel -->
+      <div id="detail-panel">
+        <img id="detail-image" src="" alt="Detail" />
+        <h3 id="detail-judul">—</h3>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>Pencipta</label>
+            <p id="detail-pencipta">—</p>
+          </div>
+          <div class="detail-item">
+            <label>Tahun</label>
+            <p id="detail-tahun">—</p>
+          </div>
+          <div class="detail-item">
+            <label>Harga</label>
+            <p id="detail-harga">—</p>
+          </div>
         </div>
-        <div class="skel">
-          <div class="skel-img"></div>
-          <div class="skel-txt"></div>
-        </div>
-        <div class="skel">
-          <div class="skel-img"></div>
-          <div class="skel-txt"></div>
-        </div>
-        <div class="skel">
-          <div class="skel-img"></div>
-          <div class="skel-txt"></div>
-        </div>
-        <div class="skel">
-          <div class="skel-img"></div>
-          <div class="skel-txt"></div>
-        </div>
-        <div class="skel">
-          <div class="skel-img"></div>
-          <div class="skel-txt"></div>
-        </div>
+        <button id="close-detail" onclick="closeDetail()">✕ Tutup</button>
       </div>
+
+      <h2>📁 Daftar Koleksi</h2>
+      <div id="loading">Memuat koleksi...</div>
+      <div id="error-msg"></div>
+      <div id="katalog"></div>
     </main>
 
-    <!-- ═══════════════════════════════ FOOTER ════ -->
     <footer>
-      <p class="fortune-label">Kata Hari Ini</p>
-      <p class="fortune-text" id="fortune-text">Memuat inspirasi&hellip;</p>
-      <p class="footer-byline">
-        &copy; <span id="tahun"></span> &nbsp;Galeri Seni &mdash; Semua hak
-        dilindungi
-      </p>
+      <div>© 2025 Katalog Koleksi Seni — Hands On Caching Lab</div>
+      <div id="fortune-serverless" class="fortune-box">
+        <div class="label">Fortune (Serverless)</div>
+        <div class="text" id="fortune-serverless-text">Memuat...</div>
+        <div class="fortune-source" id="fortune-serverless-source"></div>
+      </div>
+      <div id="fortune-edge" class="fortune-box">
+        <div class="label">Fortune (Edge)</div>
+        <div class="text" id="fortune-edge-text">Memuat...</div>
+        <div class="fortune-source" id="fortune-edge-source"></div>
+      </div>
     </footer>
 
-    <!-- ═══════════════════════════════ SCRIPT ════ -->
     <script>
-      "use strict";
-
-      // ── Utilitas ───────────────────────────────────
-      const $ = (id) => document.getElementById(id);
-
-      // Escape HTML sederhana
-      function esc(s) {
-        return String(s ?? "")
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#39;");
-      }
-
-      // Format Rupiah
-      function rupiah(n) {
-        if (n == null) return "—";
-        return new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          maximumFractionDigits: 0,
-        }).format(n);
-      }
-
-      // Format tanggal Indonesia
-      function tglIndo() {
-        return new Intl.DateTimeFormat("id-ID", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        }).format(new Date());
-      }
-
-      // ── Init metadata ──────────────────────────────
-      $("tgl-hari-ini").textContent = tglIndo();
-      $("tahun").textContent = new Date().getFullYear();
-
-      // ── State ──────────────────────────────────────
-      let idAktif = null;
-
-      // ── Render satu card katalog ───────────────────
-      function buatCard(item) {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.setAttribute("role", "listitem");
-        card.setAttribute("tabindex", "0");
-        card.dataset.id = item.id;
-
-        const tipe = (item.tipe || "foto").toLowerCase();
-        const thumbSrc = item.path || null;
-
-        card.innerHTML = `
-        <div class="card-thumb">
-          ${
-            thumbSrc
-              ? `<img src="${esc(thumbSrc)}" alt="${esc(item.judul)}" loading="lazy"
-                    onload="this.classList.add('loaded')" />`
-              : `<div class="thumb-empty">🖼</div>`
-          }
-          <span class="card-tipe ${tipe}">${tipe}</span>
-        </div>
-        <div class="card-foot">
-          <div class="card-judul">${esc(item.judul)}</div>
-        </div>`;
-
-        const aksi = () => toggleDetail(item.id, card);
-        card.addEventListener("click", aksi);
-        card.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            aksi();
-          }
-        });
-
-        return card;
-      }
-
-      // ── Toggle detail ──────────────────────────────
-      async function toggleDetail(id, cardEl) {
-        const panel = $("detail-panel");
-
-        // Tutup jika diklik lagi
-        if (idAktif === id) {
-          tutupDetail();
-          return;
-        }
-
-        // Mark active
-        document
-          .querySelectorAll(".card")
-          .forEach((c) => c.classList.remove("aktif"));
-        cardEl.classList.add("aktif");
-        idAktif = id;
-
-        // Loading state
-        panel.innerHTML = `<div class="detail-spin"><div class="spinner"></div>Memuat detail…</div>`;
-        panel.classList.add("open");
-        panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
-
-        try {
-          const res = await fetch(
-            `/api/get-detail?id=${encodeURIComponent(id)}`,
-          );
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const json = await res.json();
-          if (!json.success) throw new Error(json.error || "Gagal");
-          renderDetail(json.data);
-        } catch (err) {
-          panel.innerHTML = `
-          <div class="detail-spin" style="color:var(--red)">
-            ⚠&nbsp; Gagal memuat detail: ${esc(err.message)}
-          </div>`;
-        }
-      }
-
-      // ── Render isi detail panel ────────────────────
-      function renderDetail(d) {
-        const panel = $("detail-panel");
-        const tipe = (d.tipe || "foto").toLowerCase();
-
-        // Tentukan src media
-        const thumbSrc = d.path || null;
-        const mediaSrc = d.path || null;
-
-        // Media preview — video putar di tempat, foto tampilkan thumbnail
-        let mediaHtml = "";
-        if (tipe === "video" && mediaSrc) {
-          const poster = thumbSrc ? ` poster="${esc(thumbSrc)}"` : "";
-          mediaHtml = `<video src="${esc(mediaSrc)}" controls preload="none"${poster}></video>`;
-        } else if (thumbSrc) {
-          mediaHtml = `<img src="${esc(thumbSrc)}" alt="${esc(d.judul)}" onload="this.classList.add('loaded')" />`;
-        } else {
-          mediaHtml = `<div class="thumb-empty" style="height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem">🖼</div>`;
-        }
-
-        panel.innerHTML = `
-        <div class="detail-grid">
-          <div class="detail-media">${mediaHtml}</div>
-          <div class="detail-body">
-            <button class="detail-close" onclick="tutupDetail()" aria-label="Tutup detail">&#x2715;</button>
-            <p class="detail-eyebrow">${esc(tipe)}</p>
-            <h2 class="detail-title">${esc(d.judul)}</h2>
-            <div class="detail-fields">
-              <div class="detail-field">
-                <div class="field-label">Pencipta</div>
-                <div class="field-value">${esc(d.pencipta || "—")}</div>
-              </div>
-              <div class="detail-field">
-                <div class="field-label">Tahun</div>
-                <div class="field-value">${esc(String(d.tahun ?? "—"))}</div>
-              </div>
-              <div class="detail-field" style="grid-column:1/-1;border-right:none;padding-right:0">
-                <div class="field-label">Harga</div>
-                <div class="field-value harga">${rupiah(d.harga)}</div>
-              </div>
-            </div>
-            ${
-              d.deskripsi
-                ? `<p class="detail-desc">${esc(d.deskripsi)}</p>`
-                : ""
-            }
-          </div>
-        </div>`;
-      }
-
-      // ── Tutup detail ───────────────────────────────
-      function tutupDetail() {
-        $("detail-panel").classList.remove("open");
-        $("detail-panel").innerHTML = "";
-        document
-          .querySelectorAll(".card")
-          .forEach((c) => c.classList.remove("aktif"));
-        idAktif = null;
-      }
-      // Expose ke inline onclick
-      window.tutupDetail = tutupDetail;
-
-      // ── Muat katalog dari /api/get-koleksi ─────────
-      async function muatKatalog() {
-        const catalog = $("catalog");
+      // ── Load katalog ──────────────────────────────────────────
+      async function loadKatalog() {
         try {
           const res = await fetch("/api/get-koleksi");
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const json = await res.json();
+          const data = await res.json();
+          document.getElementById("loading").style.display = "none";
 
-          catalog.innerHTML = "";
-
-          if (!json.success || !json.data?.length) {
-            catalog.innerHTML = `
-            <div class="state-msg">
-              <span class="icon">🗂</span>
-              <p>Belum ada koleksi tersedia.</p>
-            </div>`;
+          const grid = document.getElementById("katalog");
+          if (!data.length) {
+            grid.innerHTML = "<p>Belum ada koleksi.</p>";
             return;
           }
-
-          json.data.forEach((item) => catalog.appendChild(buatCard(item)));
-        } catch (err) {
-          catalog.innerHTML = `
-          <div class="state-msg">
-            <span class="icon">⚠</span>
-            <p>Gagal memuat katalog: ${esc(err.message)}</p>
-          </div>`;
+          data.forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+          <img src="${item.path}" alt="${item.judul}" loading="lazy"
+               onerror="this.src='https://placehold.co/400x300?text=Foto'">
+          <div class="card-title">${item.judul}</div>
+        `;
+            card.addEventListener("click", () => loadDetail(item.id));
+            grid.appendChild(card);
+          });
+        } catch (e) {
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("error-msg").textContent =
+            "Gagal memuat koleksi: " + e.message;
         }
       }
 
-      // ── Muat fortune untuk footer ──────────────────
-      async function muatFortune() {
+      // ── Load detail ───────────────────────────────────────────
+      async function loadDetail(id) {
         try {
-          const res = await fetch("/api/fortune");
-          const json = await res.json();
-          $("fortune-text").textContent = json.fortune || "";
-        } catch {
-          $("fortune-text").textContent = "Seni adalah bahasa universal jiwa.";
+          const res = await fetch(`/api/get-detail?id=${id}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const item = await res.json();
+
+          document.getElementById("detail-judul").textContent = item.judul;
+          document.getElementById("detail-pencipta").textContent =
+            item.pencipta;
+          document.getElementById("detail-tahun").textContent = item.tahun
+            ? new Date(item.tahun).getFullYear()
+            : "—";
+          document.getElementById("detail-harga").textContent = item.harga
+            ? "Rp " + Number(item.harga).toLocaleString("id-ID")
+            : "—";
+          document.getElementById("detail-image").src = item.path || "";
+
+          const panel = document.getElementById("detail-panel");
+          panel.classList.add("active");
+          panel.scrollIntoView({ behavior: "smooth" });
+        } catch (e) {
+          alert("Gagal memuat detail: " + e.message);
         }
       }
 
-      // ── Kick-off ───────────────────────────────────
-      muatKatalog();
-      muatFortune();
+      function closeDetail() {
+        document.getElementById("detail-panel").classList.remove("active");
+      }
+
+      // ── Load fortune ──────────────────────────────────────────
+      async function loadFortune() {
+        try {
+          const [r1, r2] = await Promise.all([
+            fetch("/api/fortune"),
+            fetch("/api/fortune-edge"),
+          ]);
+          const d1 = await r1.json();
+          const d2 = await r2.json();
+
+          document.getElementById("fortune-serverless-text").textContent =
+            d1.fortune;
+          document.getElementById("fortune-serverless-source").textContent =
+            d1.source;
+          document.getElementById("fortune-edge-text").textContent = d2.fortune;
+          document.getElementById("fortune-edge-source").textContent =
+            d2.source +
+            (d2.timestamp
+              ? " · " + new Date(d2.timestamp).toLocaleTimeString("id-ID")
+              : "");
+        } catch (e) {
+          console.error("Fortune error:", e);
+        }
+      }
+
+      loadKatalog();
+      loadFortune();
     </script>
   </body>
 </html>
