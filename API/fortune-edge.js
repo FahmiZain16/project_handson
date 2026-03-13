@@ -1,3 +1,4 @@
+// api/fortune-edge.js — Edge Function
 export const config = {
   runtime: "edge",
 };
