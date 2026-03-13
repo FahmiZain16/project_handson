@@ -3,8 +3,8 @@
 // Mengembalikan daftar koleksi (id, judul, thumbnail_url, tipe)
 // Data Supabase di-cache di Redis selama 5 menit
 
-const { createClient } = require("@supabase/supabase-js");
-const Redis = require("ioredis");
+import { createClient } from "@supabase/supabase-js";
+import { createClient as createRedisClient } from "redis";
 
 // ── Konstanta ──────────────────────────────────────
 const CACHE_KEY = "koleksi:semua";
@@ -25,21 +25,18 @@ function getSupabase() {
   return _supabase;
 }
 
-function getRedis() {
+async function getRedis() {
   if (!_redis) {
     const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
-    _redis = new Redis(redisUrl, {
-      lazyConnect: true,
-      maxRetriesPerRequest: 1,
-      retryStrategy: (times) => (times > 2 ? null : times * 100),
-    });
+    _redis = createRedisClient({ url: redisUrl });
     _redis.on("error", (e) => console.warn("[Redis] error:", e.message));
+    await _redis.connect();
   }
   return _redis;
 }
 
 // ── Handler ────────────────────────────────────────
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
@@ -52,7 +49,7 @@ module.exports = async function handler(req, res) {
   let koleksi = null;
   let cacheHit = false;
   try {
-    const redis = getRedis();
+    const redis = await getRedis();
     const raw = await redis.get(CACHE_KEY);
     if (raw) {
       koleksi = JSON.parse(raw);
@@ -79,8 +76,8 @@ module.exports = async function handler(req, res) {
 
       // 3. Simpan ke Redis
       try {
-        const redis = getRedis();
-        await redis.setex(CACHE_KEY, CACHE_TTL, JSON.stringify(koleksi));
+        const redis = await getRedis();
+        await redis.setEx(CACHE_KEY, CACHE_TTL, JSON.stringify(koleksi));
       } catch (e) {
         console.warn("[get-koleksi] Redis set gagal:", e.message);
       }
@@ -98,4 +95,4 @@ module.exports = async function handler(req, res) {
     count: koleksi.length,
     data: koleksi,
   });
-};
+}

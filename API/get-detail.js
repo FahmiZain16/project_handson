@@ -3,8 +3,8 @@
 // Mengembalikan detail lengkap satu koleksi
 // Data Supabase di-cache di Redis selama 10 menit per ID
 
-const { createClient } = require("@supabase/supabase-js");
-const Redis = require("ioredis");
+import { createClient } from "@supabase/supabase-js";
+import { createClient as createRedisClient } from "redis";
 
 // ── Konstanta ──────────────────────────────────────
 const CACHE_TTL = 600; // 10 menit
@@ -24,21 +24,18 @@ function getSupabase() {
   return _supabase;
 }
 
-function getRedis() {
+async function getRedis() {
   if (!_redis) {
     const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
-    _redis = new Redis(redisUrl, {
-      lazyConnect: true,
-      maxRetriesPerRequest: 1,
-      retryStrategy: (times) => (times > 2 ? null : times * 100),
-    });
+    _redis = createRedisClient({ url: redisUrl });
     _redis.on("error", (e) => console.warn("[Redis] error:", e.message));
+    await _redis.connect();
   }
   return _redis;
 }
 
 // ── Handler ────────────────────────────────────────
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
@@ -67,7 +64,7 @@ module.exports = async function handler(req, res) {
   let detail = null;
   let cacheHit = false;
   try {
-    const redis = getRedis();
+    const redis = await getRedis();
     const raw = await redis.get(CACHE_KEY);
     if (raw) {
       detail = JSON.parse(raw);
@@ -102,8 +99,8 @@ module.exports = async function handler(req, res) {
 
       // 3. Simpan ke Redis
       try {
-        const redis = getRedis();
-        await redis.setex(CACHE_KEY, CACHE_TTL, JSON.stringify(detail));
+        const redis = await getRedis();
+        await redis.setEx(CACHE_KEY, CACHE_TTL, JSON.stringify(detail));
       } catch (e) {
         console.warn("[get-detail] Redis set gagal:", e.message);
       }
@@ -120,4 +117,4 @@ module.exports = async function handler(req, res) {
     cache: cacheHit ? "HIT" : "MISS",
     data: detail,
   });
-};
+}
